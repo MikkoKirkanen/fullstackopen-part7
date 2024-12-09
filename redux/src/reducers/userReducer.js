@@ -19,9 +19,9 @@ const userSlice = createSlice({
 
 export const initializeUser = () => {
   return (dispatch) => {
-    const loggerUser = localStorage.getItem('loggedUser')
-    if (loggerUser) {
-      const user = JSON.parse(loggerUser)
+    const loggedUser = localStorage.getItem('loggedUser')
+    if (loggedUser) {
+      const user = JSON.parse(loggedUser)
       dispatch(set(user))
       blogService.setToken(user.token)
     }

@@ -1,14 +1,19 @@
-import PropTypes from 'prop-types'
 import Alert from 'react-bootstrap/Alert'
+import { useDispatch, useSelector } from 'react-redux'
+import { hide } from '../reducers/notificationReducer'
 
-const Notification = ({ notification, onClose }) => (
+const Notification = () => {
+  const dispatch = useDispatch()
+  const notification = useSelector(state => state.notification)
+
+  return (
   <Alert
     id='notification'
     variant={notification?.type}
     show={!!notification?.show}
     dismissible
     className='notification fixed-top w-auto m-3'
-    onClose={onClose}
+    onClose={() => dispatch(hide())}
   >
     {notification?.title ? (
       <Alert.Heading>{notification.title}</Alert.Heading>
@@ -21,11 +26,6 @@ const Notification = ({ notification, onClose }) => (
       </ul>
     ) : null}
   </Alert>
-)
-
-Notification.propTypes = {
-  notification: PropTypes.object,
-  onClose: PropTypes.func.isRequired,
-}
+)}
 
 export default Notification

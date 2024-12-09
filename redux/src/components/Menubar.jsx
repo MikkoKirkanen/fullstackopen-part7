@@ -1,9 +1,13 @@
-import PropTypes from 'prop-types'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navbar, Container, Nav, Button } from 'react-bootstrap'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { BoxArrowRight } from 'react-bootstrap-icons'
+import { userLogout } from '../reducers/userReducer'
 
-const Menubar = ({ onLogout, user }) => {
+const Menubar = () => {
+  const user = useSelector((state) => state.user)
+  const dispatch = useDispatch()
+
   return (
     <Navbar className='border border-top-0 rounded-bottom mb-3'>
       <Container>
@@ -20,7 +24,7 @@ const Menubar = ({ onLogout, user }) => {
             placement='left'
             overlay={<Tooltip id='tooltip'>Logout</Tooltip>}
           >
-            <Button id='logout' variant='info' onClick={onLogout}>
+            <Button id='logout' variant='info' onClick={() => dispatch(userLogout())}>
               <BoxArrowRight />
             </Button>
           </OverlayTrigger>
@@ -28,11 +32,6 @@ const Menubar = ({ onLogout, user }) => {
       </Container>
     </Navbar>
   )
-}
-
-Menubar.propTypes = {
-  onLogout: PropTypes.func.isRequired,
-  user: PropTypes.object,
 }
 
 export default Menubar

@@ -19,11 +19,7 @@ app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
 
 if (process.env.NODE_ENV === 'test') {
-  // import('./controllers/testing.js').then(({ default: testingRouter}) => {
-    app.use('/api/testing', testingRouter)
-  // }).catch((err) => {
-    // console.error('Failed to load testing router:', err)
-  // })
+  app.use('/api/testing', testingRouter)
 }
 
 app.use('/api/login', loginRouter)

@@ -7,20 +7,24 @@ const setToken = (token) => {
   headers = { headers: {"Authorization" : `Bearer ${token}`} }
 }
 
-const getAll = () => {
-  return axios.get(baseUrl).then((res) => res.data)
+const getAll = async () => {
+  const res = await axios.get(baseUrl)
+  return res.data
 }
 
-const create = (newBlog) => {
-  return axios.post(baseUrl, newBlog, headers).then((res) => res.data);
+const create = async (newBlog) => {
+  const res = await axios.post(baseUrl, newBlog, headers)
+  return res.data
 };
 
-const update = (blog, id) => {
-  return axios.put(`${baseUrl}/${id}`, blog, headers).then((res) => res.data);
+const update = async (blog) => {
+  const res = await axios.put(`${baseUrl}/${blog.id}`, blog, headers)
+  return res.data
 }
 
-const remove = (id) => {
-  return axios.delete(`${baseUrl}/${id}`, headers).then((res) => res.data);
+const remove = async (id) => {
+  const res = await axios.delete(`${baseUrl}/${id}`, headers)
+  return res.data
 }
 
 export default { setToken, getAll, create, update, remove }

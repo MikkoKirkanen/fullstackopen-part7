@@ -2,13 +2,15 @@ import { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Button } from 'react-bootstrap'
 import { HandThumbsUpFill, TrashFill } from 'react-bootstrap-icons'
+import { useDispatch, useSelector } from 'react-redux'
+import { likeBlog, removeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, userId, like, remove }) => {
+const Blog = ({ blog }) => {
+  const user = useSelector((state) => state.user)
+  const dispatch = useDispatch()
   const [show, setShow] = useState(false)
 
-  const toggleShow = () => {
-    setShow(!show)
-  }
+  const toggleShow = () => setShow(!show)
 
   return (
     <div className='blog accordion-item'>
@@ -43,28 +45,33 @@ const Blog = ({ blog, userId, like, remove }) => {
               </div>
             ) : null}
           </div>
-          {userId ? (
-            <div className='accordion-footer bg-light-subtle border-top d-flex justify-content-between'>
+          <div className='accordion-footer bg-light-subtle border-top d-flex justify-content-between'>
+            {user?.id ? (
               <Button
                 className='like-button'
                 variant='success'
                 title='Like'
-                onClick={() => like(blog)}
+                onClick={() => dispatch(likeBlog(blog))}
               >
                 <HandThumbsUpFill className='me-2' />
                 <span className='likes'>{blog?.likes}</span>
               </Button>
-              {blog?.user?.id && blog.user.id === userId ? (
-                <Button
-                  variant='danger'
-                  title='Remove'
-                  onClick={() => remove(blog)}
-                >
-                  <TrashFill />
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
+            ) : (
+              <div>
+                <HandThumbsUpFill className='me-2' />
+                <span className='likes'>{blog?.likes}</span>
+              </div>
+            )}
+            {blog?.user?.id && blog.user.id === user?.id ? (
+              <Button
+                variant='danger'
+                title='Remove'
+                onClick={() => dispatch(removeBlog(blog))}
+              >
+                <TrashFill />
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
@@ -73,9 +80,6 @@ const Blog = ({ blog, userId, like, remove }) => {
 
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
-  userId: PropTypes.string,
-  like: PropTypes.func,
-  remove: PropTypes.func,
 }
 
 export default Blog

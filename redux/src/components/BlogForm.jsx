@@ -1,22 +1,23 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+import { createBlog } from '../reducers/blogReducer'
 
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-const BlogForm = ({ submitBlog }) => {
+const BlogForm = () => {
+  const dispatch = useDispatch()
   const [blog, setBlog] = useState({ title: '', author: '', url: '' })
   const [showForm, setShowForm] = useState(false)
 
-  const toggleShowForm = () => {
-    setShowForm(!showForm)
-  }
+  const toggleShowForm = () => setShowForm(!showForm)
 
   const handleBlogChange = (event) => {
     const target = event.target
-    setBlog((prev) => ({
-      ...prev,
+    setBlog((blog) => ({
+      ...blog,
       [target.name]: target.value,
     }))
   }
@@ -27,14 +28,8 @@ const BlogForm = ({ submitBlog }) => {
 
   const submit = (event) => {
     event.preventDefault()
-
-    // If success then clear and close form else do nothing
-    submitBlog(blog)
-      .then(() => {
-        clearBlogForm()
-        setShowForm(false)
-      })
-      .catch(() => {})
+    dispatch(createBlog(blog))
+    clearBlogForm()
   }
 
   return (
@@ -88,7 +83,7 @@ const BlogForm = ({ submitBlog }) => {
               >
                 Cancel
               </Button>
-              <Button id="send" variant='primary' type='submit'>
+              <Button id='send' variant='primary' type='submit'>
                 Send
               </Button>
             </div>
@@ -97,10 +92,6 @@ const BlogForm = ({ submitBlog }) => {
       </Card>
     </>
   )
-}
-
-BlogForm.propTypes = {
-  submitBlog: PropTypes.func.isRequired,
 }
 
 export default BlogForm

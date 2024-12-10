@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import loginService from '../services/login'
+import userService from '../services/user'
 import blogService from '../services/blog'
 import { showNotification, showError } from './notificationReducer'
 
@@ -30,7 +30,7 @@ export const initializeUser = () => {
 
 export const userLogin = (credentials) => {
   return (dispatch) => {
-    loginService
+    userService
       .login(credentials)
       .then((res) => {
         dispatch(login(res))

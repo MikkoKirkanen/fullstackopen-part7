@@ -14,7 +14,7 @@ loginRouter.post('/', async (req, res) => {
     : false
 
   if (!passwordCorrect) {
-  return res.status(401).json({
+    return res.status(401).json({
       title: 'Invalid username or password',
     })
   }
@@ -26,7 +26,15 @@ loginRouter.post('/', async (req, res) => {
 
   const token = jwt.sign(userForToken, process.env.SECRET, { expiresIn: 3600 })
 
-  res.status(200).send({ token, username: user.username, name: user.name, id: user.id, title: 'Logged in successfully' })
+  res
+    .status(200)
+    .send({
+      token,
+      username: user.username,
+      name: user.name,
+      id: user.id,
+      title: 'Logged in successfully',
+    })
 })
 
 export default loginRouter

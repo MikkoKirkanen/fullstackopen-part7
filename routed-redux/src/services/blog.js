@@ -4,7 +4,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL + 'blogs'
 let headers = null
 
 const setToken = (token) => {
-  headers = { headers: {"Authorization" : `Bearer ${token}`} }
+  headers = { headers: { Authorization: `Bearer ${token}` } }
 }
 
 const getAll = async () => {
@@ -15,7 +15,7 @@ const getAll = async () => {
 const create = async (newBlog) => {
   const res = await axios.post(baseUrl, newBlog, headers)
   return res.data
-};
+}
 
 const update = async (blog) => {
   const res = await axios.put(`${baseUrl}/${blog.id}`, blog, headers)
@@ -27,4 +27,9 @@ const remove = async (id) => {
   return res.data
 }
 
-export default { setToken, getAll, create, update, remove }
+const addComment = async (id, comment) => {
+  const res = await axios.post(`${baseUrl}/${id}/comments`, comment, headers)
+  return res.data
+}
+
+export default { setToken, getAll, create, update, remove, addComment }

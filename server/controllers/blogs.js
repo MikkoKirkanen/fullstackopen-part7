@@ -58,4 +58,26 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (req, res) => {
   }
 })
 
+blogsRouter.post(
+  '/:id/comments',
+  middleware.userExtractor,
+  async (req, res) => {
+    const id = req.params.id
+    const comment = req.body.comment
+
+    if (!comment) {
+      return res.status(400).json({ title: 'Comment cannot be empty' })
+    }
+
+    const blog = await Blog.findByIdAndUpdate(
+      id,
+      { $push: { comments: comment } },
+      { new: true }
+    )
+    blog.populate('user')
+
+    res.status(201).json(blog)
+  }
+)
+
 export default blogsRouter

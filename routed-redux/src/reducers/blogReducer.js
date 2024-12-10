@@ -9,7 +9,7 @@ const blogSlice = createSlice({
     create(state, action) {
       state.push(action.payload)
     },
-    like(state, action) {
+    update(state, action) {
       const blog = action.payload
       return sort(state.map((a) => (a.id !== blog.id ? a : blog)))
     },
@@ -59,7 +59,7 @@ export const likeBlog = (blog) => {
     blogService
       .update(blog)
       .then((res) => {
-        dispatch(like(res))
+        dispatch(update(res))
         const title = 'Liked blog: ' + getTitleAndAuthor(res)
         dispatch(showNotification({ title: title, type: 'success' }))
       })
@@ -86,5 +86,20 @@ export const removeBlog = (blog) => {
   }
 }
 
-export const { create, like, set, remove } = blogSlice.actions
+export const addComment = (id, comment) => {
+  return (dispatch) => {
+    blogService
+      .addComment(id, comment)
+      .then((res) => {
+        dispatch(update(res))
+        let title = 'Comment added to blog: ' + getTitleAndAuthor(res)
+        dispatch(showNotification({ title, type: 'success' }))
+      })
+      .catch((e) => {
+        dispatch(showError(e))
+      })
+  }
+}
+
+export const { create, update, set, remove } = blogSlice.actions
 export default blogSlice.reducer

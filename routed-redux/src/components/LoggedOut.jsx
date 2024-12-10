@@ -1,13 +1,19 @@
 import { useDispatch } from 'react-redux'
 import { useState } from 'react'
 import { userLogin } from '../reducers/userReducer'
-import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import { BoxArrowInRight } from 'react-bootstrap-icons'
+import { Navbar, Modal, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
-const Login = () => {
+const LoggedOut = () => {
   const dispatch = useDispatch()
-  const [login, setLogin] = useState({ username: '', password: '' })
+  const [show, setShow] = useState(false)
+  const emptyLogin = { username: '', password: '' }
+  const [login, setLogin] = useState(emptyLogin)
+
+  const handleClose = () => setShow(false)
+  const handleShow = () => setShow(true)
 
   const handleLoginChange = (event) => {
     const target = event.target
@@ -20,14 +26,27 @@ const Login = () => {
   const handleLogin = (event) => {
     event.preventDefault()
     dispatch(userLogin(login))
+    setLogin(emptyLogin)
   }
 
   return (
-    <div className='login-container'>
-      <Card className='login-content mb-3'>
-        <Card.Header as='h1'>Login</Card.Header>
-        <Card.Body>
-          <Form onSubmit={handleLogin}>
+    <Nav>
+      <Navbar.Text className='text-danger me-3'>Not logged in</Navbar.Text>
+      <OverlayTrigger
+        placement='left'
+        overlay={<Tooltip id='tooltip'>Login</Tooltip>}
+      >
+        <Button id='login' variant='success' onClick={handleShow}>
+          <BoxArrowInRight />
+        </Button>
+      </OverlayTrigger>
+
+      <Modal show={show} size='sm' onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title as='h1'>Login</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleLogin}>
+          <Modal.Body>
             <Form.Group className='mb-3' controlId='username'>
               <Form.Label>Username</Form.Label>
               <Form.Control
@@ -50,16 +69,19 @@ const Login = () => {
               />
               <div className='text-secondary'>password: ankkalinna</div>
             </Form.Group>
-            <div className='d-flex justify-content-end'>
-              <Button id='login' variant='primary' type='submit'>
-                Login
-              </Button>
-            </div>
-          </Form>
-        </Card.Body>
-      </Card>
-    </div>
+          </Modal.Body>
+          <Modal.Footer className='justify-content-between'>
+            <Button variant='secondary' onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant='primary' onClick={handleLogin}>
+              Login
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+    </Nav>
   )
 }
 
-export default Login
+export default LoggedOut

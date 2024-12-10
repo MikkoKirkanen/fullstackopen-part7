@@ -1,34 +1,36 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { Navbar, Container, Nav, Button } from 'react-bootstrap'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { BoxArrowRight } from 'react-bootstrap-icons'
-import { userLogout } from '../reducers/userReducer'
+import { useSelector } from 'react-redux'
+import {
+  Navbar,
+  Container,
+  Nav,
+} from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import LoggedOut from './LoggedOut'
+import LoggedIn from './LoggedIn'
 
 const Menubar = () => {
   const user = useSelector((state) => state.user)
-  const dispatch = useDispatch()
+
+  const getLoginStatus = () => {
+    return user ? <LoggedIn /> : <LoggedOut />
+  }
 
   return (
     <Navbar className='border border-top-0 rounded-bottom mb-3'>
       <Container>
         <Navbar.Brand href='#home'>FSO</Navbar.Brand>
-        <Nav className='me-auto'>
-          {user ? (
-            <span className='text-success'>Logged in: {user?.name}</span>
-          ) : (
-            <span className='text-danger'>Not logged in</span>
-          )}
-        </Nav>
-        {user ? (
-          <OverlayTrigger
-            placement='left'
-            overlay={<Tooltip id='tooltip'>Logout</Tooltip>}
-          >
-            <Button id='logout' variant='info' onClick={() => dispatch(userLogout())}>
-              <BoxArrowRight />
-            </Button>
-          </OverlayTrigger>
-        ) : null}
+        <Navbar.Toggle aria-controls='menubar' />
+        <Navbar.Collapse id='menubar' className='justify-content-between'>
+          <Nav>
+            <Nav.Link as={Link} to='/'>
+              Blogs
+            </Nav.Link>
+            <Nav.Link as={Link} to='/users'>
+              Users
+            </Nav.Link>
+          </Nav>
+          {getLoginStatus()}
+        </Navbar.Collapse>
       </Container>
     </Navbar>
   )

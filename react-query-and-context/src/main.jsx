@@ -1,22 +1,18 @@
 import './style.scss'
-import { configureStore } from '@reduxjs/toolkit'
-import userReducer from './reducers/userReducer'
-import notificationReducer from './reducers/notificationReducer'
-import blogReducer from './reducers/blogReducer'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
+import { NotificationContextProvider } from './contexts/NotificationContext.jsx'
+import { UserContextProvider } from './contexts/UserContext.jsx'
 import App from './App.jsx'
 
-const store = configureStore({
-  reducer: {
-    user: userReducer,
-    notification: notificationReducer,
-    blogs: blogReducer,
-  },
-})
+const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <App />
-  </Provider>
+  <QueryClientProvider client={queryClient}>
+    <NotificationContextProvider>
+      <UserContextProvider>
+        <App />
+      </UserContextProvider>
+    </NotificationContextProvider>
+  </QueryClientProvider>
 )

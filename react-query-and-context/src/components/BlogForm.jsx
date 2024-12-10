@@ -1,35 +1,51 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import PropTypes from 'prop-types'
-import { createBlog } from '../reducers/blogReducer'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { create } from '../services/blog'
+import {
+  showError,
+  useNotificationDispatch,
+} from '../contexts/NotificationContext'
 
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 const BlogForm = () => {
-  const dispatch = useDispatch()
-  const [blog, setBlog] = useState({ title: '', author: '', url: '' })
+  const queryClient = useQueryClient()
+  const notificationDispatch = useNotificationDispatch()
+  const empty = { title: '', author: '', url: '' }
+  const [blog, setBlog] = useState(empty)
   const [showForm, setShowForm] = useState(false)
 
   const toggleShowForm = () => setShowForm(!showForm)
 
-  const handleBlogChange = (event) => {
-    const target = event.target
-    setBlog((blog) => ({
-      ...blog,
+  const handleBlogChange = (e) => {
+    const target = e.target
+    setBlog((state) => ({
+      ...state,
       [target.name]: target.value,
     }))
   }
 
-  const clearBlogForm = () => {
-    setBlog({ title: '', author: '', url: '' })
-  }
+  const newBlogMutation = useMutation({
+    mutationFn: create,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+      const title =
+        'New blog created: ' +
+        res.title +
+        (res.author ? ` by ${res.author}` : '')
+      notificationDispatch({ title })
+      setBlog(empty)
+    },
+    onError: (e) => {
+      notificationDispatch(showError(e))
+    },
+  })
 
-  const submit = (event) => {
-    event.preventDefault()
-    dispatch(createBlog(blog))
-    clearBlogForm()
+  const submit = (e) => {
+    e.preventDefault()
+    newBlogMutation.mutate(blog)
   }
 
   return (

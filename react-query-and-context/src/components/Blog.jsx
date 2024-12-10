@@ -1,16 +1,64 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useUserValue } from '../contexts/UserContext'
+import {
+  showError,
+  useNotificationDispatch,
+} from '../contexts/NotificationContext'
+import { remove, update } from '../services/blog'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
 import { Button } from 'react-bootstrap'
 import { HandThumbsUpFill, TrashFill } from 'react-bootstrap-icons'
-import { useDispatch, useSelector } from 'react-redux'
-import { likeBlog, removeBlog } from '../reducers/blogReducer'
 
 const Blog = ({ blog }) => {
-  const user = useSelector((state) => state.user)
-  const dispatch = useDispatch()
+  const user = useUserValue()
+  const queryClient = useQueryClient()
+  const notificationDispatch = useNotificationDispatch()
+
   const [show, setShow] = useState(false)
 
   const toggleShow = () => setShow(!show)
+
+  const updateBlogMutation = useMutation({
+    mutationFn: update,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+      notificationDispatch({
+        title: 'Liked blog: ' + getTitleAndAuthor(res),
+        type: 'success',
+      })
+    },
+    onError: (e) => {
+      notificationDispatch(showError(e))
+    },
+  })
+
+  const likeBlog = () => {
+    const b = { ...blog }
+    b.likes++
+    const userId = b.user?.id
+    if (userId) b.user = userId
+    updateBlogMutation.mutate(b)
+  }
+
+  const removeBlogMutation = useMutation({
+    mutationFn: remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+      const title = 'Removed blog: ' + getTitleAndAuthor(blog)
+      notificationDispatch({ title, type: 'info' })
+    },
+    onError: (e) => {
+      notificationDispatch(showError(e))
+    },
+  })
+
+  const removeBlog = () => {
+    removeBlogMutation.mutate(blog.id)
+  }
+
+  const getTitleAndAuthor = (b) => b.title + (b.author ? ` by ${b.author}` : '')
 
   return (
     <div className='blog accordion-item'>
@@ -51,7 +99,7 @@ const Blog = ({ blog }) => {
                 className='like-button'
                 variant='success'
                 title='Like'
-                onClick={() => dispatch(likeBlog(blog))}
+                onClick={likeBlog}
               >
                 <HandThumbsUpFill className='me-2' />
                 <span className='likes'>{blog?.likes}</span>
@@ -63,11 +111,7 @@ const Blog = ({ blog }) => {
               </div>
             )}
             {blog?.user?.id && blog.user.id === user?.id ? (
-              <Button
-                variant='danger'
-                title='Remove'
-                onClick={() => dispatch(removeBlog(blog))}
-              >
+              <Button variant='danger' title='Remove' onClick={removeBlog}>
                 <TrashFill />
               </Button>
             ) : null}

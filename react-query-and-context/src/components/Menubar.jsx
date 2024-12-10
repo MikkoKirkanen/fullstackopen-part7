@@ -1,17 +1,27 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useUserDispatch, useUserValue } from '../contexts/UserContext'
+import { setToken } from '../services/blog'
+import { useNotificationDispatch } from '../contexts/NotificationContext'
+
 import { Navbar, Container, Nav, Button } from 'react-bootstrap'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { BoxArrowRight } from 'react-bootstrap-icons'
-import { userLogout } from '../reducers/userReducer'
 
 const Menubar = () => {
-  const user = useSelector((state) => state.user)
-  const dispatch = useDispatch()
+  const user = useUserValue()
+  const userDispatch = useUserDispatch()
+  const notificationDispatch = useNotificationDispatch()
+
+  const onLogout = () => {
+    localStorage.removeItem('loggedUser')
+    setToken('')
+    userDispatch(null)
+    notificationDispatch({ title: 'Logged out', type: 'info' })
+  }
 
   return (
     <Navbar className='border border-top-0 rounded-bottom mb-3'>
       <Container>
-        <Navbar.Brand href='#home'>FSO</Navbar.Brand>
+        <Navbar.Brand href='/'>FSO</Navbar.Brand>
         <Nav className='me-auto'>
           {user ? (
             <span className='text-success'>Logged in: {user?.name}</span>
@@ -24,7 +34,7 @@ const Menubar = () => {
             placement='left'
             overlay={<Tooltip id='tooltip'>Logout</Tooltip>}
           >
-            <Button id='logout' variant='info' onClick={() => dispatch(userLogout())}>
+            <Button id='logout' variant='info' onClick={onLogout}>
               <BoxArrowRight />
             </Button>
           </OverlayTrigger>

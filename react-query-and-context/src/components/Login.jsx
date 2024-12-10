@@ -1,25 +1,45 @@
-import { useDispatch } from 'react-redux'
 import { useState } from 'react'
-import { userLogin } from '../reducers/userReducer'
+import { useMutation } from '@tanstack/react-query'
+import {
+  showError,
+  useNotificationDispatch,
+} from '../contexts/NotificationContext'
+import { useUserDispatch } from '../contexts/UserContext'
+import { userLogin } from '../services/login'
+import { setToken } from '../services/blog'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 const Login = () => {
-  const dispatch = useDispatch()
+  const notificationDispatch = useNotificationDispatch()
+  const userDispatch = useUserDispatch()
   const [login, setLogin] = useState({ username: '', password: '' })
 
   const handleLoginChange = (event) => {
     const target = event.target
-    setLogin((prev) => ({
-      ...prev,
+    setLogin((state) => ({
+      ...state,
       [target.name]: target.value,
     }))
   }
 
-  const handleLogin = (event) => {
-    event.preventDefault()
-    dispatch(userLogin(login))
+  const loginMutation = useMutation({
+    mutationFn: userLogin,
+    onSuccess: (res) => {
+      userDispatch(res)
+      localStorage.setItem('loggedUser', JSON.stringify(res))
+      setToken(res.token)
+      notificationDispatch({ title: res.title, type: 'success' })
+    },
+    onError: (e) => {
+      notificationDispatch(showError(e))
+    },
+  })
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+    loginMutation.mutate(login)
   }
 
   return (

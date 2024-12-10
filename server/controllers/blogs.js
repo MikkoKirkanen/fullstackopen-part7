@@ -36,17 +36,25 @@ blogsRouter.put('/', middleware.userExtractor, async (req, res) => {
 
 blogsRouter.put('/:id', middleware.userExtractor, async (req, res) => {
   const blog = req.body
-  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, { new: true }).populate('user')
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
+    new: true,
+  }).populate('user')
   res.status(200).json(updatedBlog)
 })
 
 blogsRouter.delete('/:id', middleware.userExtractor, async (req, res) => {
   const id = req.params.id
   const blog = await Blog.findById(id)
+  const userId = req.user?.id
 
-  if (blog && blog?.user?.toString() === req.user?.id) {
+  if (blog && blog?.user?.toString() === userId) {
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { blogs: id } },
+      { new: true }
+    )
     await blog.deleteOne()
-    return res.status(200).json({ title: 'Blog successfully deleted'})
+    return res.status(200).json({ title: 'Blog successfully deleted' })
   }
 })
 
